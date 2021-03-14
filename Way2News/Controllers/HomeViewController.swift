@@ -33,14 +33,12 @@ class HomeViewController: UIViewController {
         searchTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         searchTableView.isHidden = true
         //UpdateAnnotations
-        self.updateAnnotations()
+        
         searchBar.showsCancelButton = true
         searchBar.delegate = self
         mapView.delegate = self
-       
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
+        
+        // Location accessing
         if (CLLocationManager.locationServicesEnabled()) {
             
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -50,7 +48,9 @@ class HomeViewController: UIViewController {
             mapView.showsUserLocation = true
             locationManager.startUpdatingLocation()
         }
+        
     }
+    
     
     
     //MARK:- Methods
@@ -113,11 +113,26 @@ extension HomeViewController: CLLocationManagerDelegate {
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         
-        switch manager.authorizationStatus {
-        case .authorizedAlways , .authorizedWhenInUse:
-            locationManager.startUpdatingLocation()
+        if #available(iOS 14.0, *) {
+            switch manager.authorizationStatus {
+            case .authorizedAlways , .authorizedWhenInUse:
+                //locationManager.startUpdatingLocation()
+                break
+            case .notDetermined , .denied , .restricted:
+                break
+            default:
+                break
+            }
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedAlways:
             break
-        case .notDetermined , .denied , .restricted:
+        case .authorizedWhenInUse:
+            break
+        case .denied, .notDetermined:
             break
         default:
             break
@@ -127,15 +142,15 @@ extension HomeViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         // Getting current location
-        let location = locations.last!
-        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-        var region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
-        region.center = mapView.userLocation.coordinate
-        mapView.setRegion(region, animated: true)
-        //DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        if  let location = locations.last as? CLLocation {
+            print(location)
+            let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+            let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
+            self.mapView.setRegion(region, animated: true)
             self.locationManager.stopUpdatingLocation()
-       // }
-        
+            self.updateAnnotations()
+            
+        }
     }
 }
 //MARK:- MKMapViewDelegate
@@ -146,7 +161,12 @@ extension HomeViewController: MKMapViewDelegate {
         
         guard let selected_annotation = view.annotation as? MKAnnotation else {return}
         let mainstoryBoard = UIStoryboard(name: "Main", bundle: nil)
-        let cityViewcontroller = mainstoryBoard.instantiateViewController(identifier: "CityViewController") as! CityViewController
+        var cityViewcontroller = CityViewController()
+        if #available(iOS 13.0, *) {
+            cityViewcontroller = mainstoryBoard.instantiateViewController(identifier: "CityViewController") as! CityViewController
+        } else {
+            cityViewcontroller = mainstoryBoard.instantiateViewController(withIdentifier: "CityViewController") as! CityViewController
+        }
         cityViewcontroller.latitude = selected_annotation.coordinate.latitude
         cityViewcontroller.longitude = selected_annotation.coordinate.longitude
         cityViewcontroller.cityName = (selected_annotation.title ?? "City")! 
@@ -169,6 +189,18 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.searchTableView.isHidden = true
+        
+        let mainstoryBoard = UIStoryboard(name: "Main", bundle: nil)
+        var cityViewcontroller = CityViewController()
+        if #available(iOS 13.0, *) {
+            cityViewcontroller = mainstoryBoard.instantiateViewController(identifier: "CityViewController") as! CityViewController
+        } else {
+            cityViewcontroller = mainstoryBoard.instantiateViewController(withIdentifier: "CityViewController") as! CityViewController
+        }
+        cityViewcontroller.latitude = self.searcharray[indexPath.row].latitude
+        cityViewcontroller.longitude = self.searcharray[indexPath.row].longitude
+        cityViewcontroller.cityName = self.searcharray[indexPath.row].location_name ?? "City"
+        self.navigationController?.pushViewController(cityViewcontroller, animated: true)
     }
     
     

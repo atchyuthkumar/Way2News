@@ -53,8 +53,14 @@ class CityViewController: UIViewController {
     @IBAction func settingsButtonClick(_ sender: UIButton) {
         
         let mainstoryBoard = UIStoryboard(name: "Main", bundle: nil)
-        let settingsViewcontroller = mainstoryBoard.instantiateViewController(identifier: "SettingsViewController") as! SettingsViewController
-        self.navigationController?.pushViewController(settingsViewcontroller, animated: true)
+        if #available(iOS 13.0, *) {
+            let settingsViewcontroller = mainstoryBoard.instantiateViewController(identifier: "SettingsViewController") as! SettingsViewController
+            self.navigationController?.pushViewController(settingsViewcontroller, animated: true)
+        } else {
+            let settingsViewcontroller = mainstoryBoard.instantiateViewController(withIdentifier: "SettingsViewController") as! SettingsViewController
+            self.navigationController?.pushViewController(settingsViewcontroller, animated: true)
+        }
+        
         
     }
     

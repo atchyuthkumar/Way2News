@@ -64,6 +64,8 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>&quot;Way2news&quot; wants to get user surrent location to show weather updates</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>&quot;Way2news&quot; wants to get user surrent location to show weather updates</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>&quot;Way2news&quot; wants to get user surrent location to show weather updates</string>
 	<key>NSAppTransportSecurity</key>
