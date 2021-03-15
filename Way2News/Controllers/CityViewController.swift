@@ -68,17 +68,17 @@ class CityViewController: UIViewController {
     
     func getAPIresponse()  {
         let endpoint_Str = "http://api.openweathermap.org/data/2.5/weather?lat=\(latitude)&lon=\(longitude)&appid=\(APIKey)"
-        Webservices.sharedInstance.getAPI(API_String: endpoint_Str, target: self) { (data) in
+        Webservices.sharedInstance.getAPI(API_String: endpoint_Str, target: self) { [weak self] (data) in
             switch Webservices.sharedInstance.responseStatus {
             case.success:
                 if let response_data = data as? [String: Any] {
-                    self.arrofData.append(TodayForecastModel(forecastDict: response_data))
+                    self?.arrofData.append(TodayForecastModel(forecastDict: response_data))
                     
                     DispatchQueue.main.async {
-                        if let description = self.arrofData[0].weather?.description as? String {
-                            self.descriptionLabel.text = description
+                        if let description = self?.arrofData[0].weather?.description as? String {
+                            self?.descriptionLabel.text = description
                         }
-                        self.forecastCollectionView.reloadData()
+                        self?.forecastCollectionView.reloadData()
                     }
                 }
             case.error:
@@ -96,7 +96,7 @@ class CityViewController: UIViewController {
     func getAPIFivedaysresponse()  {
         
         let endpoint_url = "http://api.openweathermap.org/data/2.5/forecast?lat=\(latitude)&lon=\(longitude)&appid=\(APIKey)&units=metric"
-        Webservices.sharedInstance.getAPI(API_String: endpoint_url, target: self) { (data) in
+        Webservices.sharedInstance.getAPI(API_String: endpoint_url, target: self) { [weak self] (data) in
             switch Webservices.sharedInstance.responseStatus {
             case.success:
                 if let response_data = data as? [String: Any] {
@@ -105,7 +105,7 @@ class CityViewController: UIViewController {
                         for record in list {
                             finalArray.append(TodayForecastModel(forecastDict: record))
                         }
-                        self.datasegregation(data: finalArray)
+                        self?.datasegregation(data: finalArray)
                     }
                 }
             case.error:
@@ -142,6 +142,10 @@ class CityViewController: UIViewController {
                 self.tableview.reloadData()
             }
         }
+    }
+    
+    deinit {
+        print("cleared")
     }
 }
 

@@ -66,7 +66,7 @@ class HomeViewController: UIViewController {
         let geoCoder = CLGeocoder()
         let location = CLLocation(latitude: coordinates.latitude, longitude: coordinates.longitude)
         
-        geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, error) -> Void in
+        geoCoder.reverseGeocodeLocation(location, completionHandler: {[weak self] (placemarks, error) -> Void in
             
             // Place details
             var placeMark: CLPlacemark!
@@ -80,7 +80,7 @@ class HomeViewController: UIViewController {
                 annotation.coordinate = coordinates
                 annotation.title = String(locationName)
                 // annotation.subtitle = city
-                self.mapView.addAnnotation(annotation)
+                self?.mapView.addAnnotation(annotation)
                 CoreDataModel.sharedInstance.savelocationsData(location_name: locationName, location_lat: Double(location.coordinate.latitude), location_long: Double(location.coordinate.longitude))
             }
         })

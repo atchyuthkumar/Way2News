@@ -11,9 +11,9 @@ import UIKit
 class TodayForecastModel {
     
     var temprature: mainModel?
-    var wind: windModel?
-    var clouds: Clouds?
-    var weather: Weather?
+     var wind: windModel?
+     var clouds: Clouds?
+     var weather: Weather?
     var dat_text = String()
     
     init(forecastDict: Dictionary<String, Any>) {
